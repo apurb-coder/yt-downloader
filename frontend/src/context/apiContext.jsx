@@ -1,17 +1,17 @@
 import { createContext, useContext, useState } from "react";
 
-const apiContext = createContext({});
+const ApiContext = createContext({});
 
 export const useApi= () =>{
-    return useContext(apiContext);
+    return useContext(ApiContext);
 }
 
-export const apiDataProvider= ({children})=>{
+export const ApiDataProvider= ({children})=>{
     const [apiData, setApiData] = useState({});
 
     return (
-        <apiContext.Provider value={{apiData,setApiData}}>
+        <ApiContext.Provider value={{apiData,setApiData}}>
             {children}
-        </apiContext.Provider>
+        </ApiContext.Provider>
     );
 }

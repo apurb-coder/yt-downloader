@@ -7,10 +7,10 @@ export const useApi= () =>{
 }
 
 export const ApiDataProvider= ({children})=>{
-    const [apiData, setApiData] = useState({});
+    const [videoInfo, setVideoInfo] = useState([])
 
     return (
-        <ApiContext.Provider value={{apiData,setApiData}}>
+        <ApiContext.Provider value={{videoInfo,setVideoInfo}}>
             {children}
         </ApiContext.Provider>
     );

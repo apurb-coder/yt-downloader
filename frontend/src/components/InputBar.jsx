@@ -3,18 +3,33 @@ import { useNavigate } from "react-router-dom";
 import { IoIosCloudDownload } from "react-icons/io";
 import { SiYoutube } from "react-icons/si";
 import axios from "axios";
-import { Bounce,ToastContainer, toast } from "react-toastify"; // Dont forget to import bounce
+import { Bounce, toast } from "react-toastify"; // Dont forget to import bounce
 import "react-toastify/dist/ReactToastify.css";
+import { useApi } from "../context/ApiContext";
 
 const InputBar = () => {
   const [ytLink, setYtLink] = useState("");
   const navigate = useNavigate();
+  const { videoInfo, setVideoInfo } = useApi(); // context api calling
   // TODO: calling api handling all the logic after submission of link
   const ytLinkPattern = new RegExp(
-    "^((?:https?:)?//)?((?:www|m).)?((?:youtube(-nocookie)?.com|youtu.be))(/(?:[w-]+?v=|embed/|live/|v/)?)([w-]+)(S+)?$"
+    "^(?:https?:)?//?(?:www\\.)?((?:youtu(?:.be|be.com))/(?:watch\\?v=|embed/|v/)?|(?:youtube.com/.*?\\u0026)v=)([\\w-]+)(\\S+)?$"
   );
-  const notifyError = (msg) =>{
+  const notifyError = (msg) => {
     toast.error(msg, {
+      position: "top-right",
+      autoClose: 5000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+      theme: "light",
+      transition: Bounce,
+    });
+  };
+  const notifySucess = (msg) =>{
+    toast.success(msg, {
       position: "top-right",
       autoClose: 5000,
       hideProgressBar: false,
@@ -28,14 +43,27 @@ const InputBar = () => {
   }
   const handleSubmit = () => {
     if (ytLink.length === 0) {
-      notifyError("Youtube link not provided!")
-      return
-    }
-    else if(!ytLink.match(ytLinkPattern)){
+      notifyError("Youtube link not provided!");
+      return;
+    } else if (!ytLink.match(ytLinkPattern)) {
       notifyError("Not A valid youtube link!");
-      return
+      return;
+    } else {
+      // setYtLink(encodeURIComponent(ytLink));
+      axios
+        .get(
+          `http://localhost:8000/video-info/${ytLink}`
+        )
+        .then((res) => {
+          setVideoInfo(res.data);
+          console.log(videoInfo);
+          notifySucess("Sucessfully fetched data");
+          navigate("/download");
+        })
+        .catch((err) => {
+          notifyError("Error fetching data");
+        });
     }
-    navigate("/download");
   };
   return (
     <div className="flex flex-col justify-center items-center h-[100vh] lg:h-[89vh] mx-auto">
@@ -51,7 +79,7 @@ const InputBar = () => {
           name="ytlink"
           id="ytlink"
           placeholder="Paste your video link here"
-          onChange={(e)=>setYtLink(e.target.value)}
+          onChange={(e) => setYtLink(e.target.value)}
           className="p-4  lg:w-[30rem] rounded-md border-2 border-neutral-400/50 focus:outline-none text-xs lg:text-sm"
         />
         <button
@@ -72,8 +100,6 @@ const InputBar = () => {
           ></span>
         </button>
       </div>
-      {/* for showing toast */}
-      <ToastContainer className="mt-20" /> 
     </div>
   );
 };

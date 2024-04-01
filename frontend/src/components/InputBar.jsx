@@ -51,6 +51,7 @@ const InputBar = () => {
           name="ytlink"
           id="ytlink"
           placeholder="Paste your video link here"
+          onChange={(e)=>setYtLink(e.target.value)}
           className="p-4  lg:w-[30rem] rounded-md border-2 border-neutral-400/50 focus:outline-none text-xs lg:text-sm"
         />
         <button
@@ -71,7 +72,8 @@ const InputBar = () => {
           ></span>
         </button>
       </div>
-      <ToastContainer />
+      {/* for showing toast */}
+      <ToastContainer className="mt-20" /> 
     </div>
   );
 };

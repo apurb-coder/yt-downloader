@@ -2,17 +2,26 @@ import React from 'react'
 import { IoIosCloudDownload } from "react-icons/io";
 import sampleThumbline from "../assets/sampleThumbline.jpg"
 import Select from "react-select";
+import { useApi } from '../context/ApiContext';
 
 const DownloadPage = () => {
-  // customStyles is an object that defines styles for the option elements
+  const { qualityOptions } = useApi();
   const customStyles = {
-    option: (provided, state) => ({
+    option: (provided, state) => ({ // styles for option element itself
       ...provided,
       borderRadius: "0.5rem",
       borderWidth: "2px",
       borderColor: "rgba(107, 114, 128, 0.5)",
       outline: "none",
     }),
+    control: (provided) => ({ // styles for control element itself
+      ...provided,
+      borderRadius: "0.5rem", // equivalent to rounded-lg
+      borderWidth: "2px", // equivalent to border-2
+      borderColor: "rgba(107, 114, 128, 0.5)", // equivalent to border-gray-700/50
+      outline: "none", // equivalent to outline-none
+      boxShadow: "none", // to remove the default react-select's box-shadow on focus
+    })
   };
   return (
     <div className="flex justify-center items-center h-[100vh] lg:h-[89vh] mx-auto">
@@ -23,15 +32,12 @@ const DownloadPage = () => {
             alt="thumbline"
             className="w-[20rem] h-[11.25rem] rounded-lg"
           />
-          <select
-            name="videoQuality"
-            id="videoQuality"
-            className="w-[10rem] h-[3rem] rounded-lg border-2 border-gray-700/50 outline-none mt-7 lg:mt-0"
-          >
-            <option value="1080p">1080p</option>
-            <option value="1080p">1080p</option>
-            <option value="1080p">1080p</option>
-          </select>
+
+          <Select
+            styles={customStyles}
+            // defaultValue={qualityOptions[0]}
+            // options={qualityOptions}
+          />
         </div>
         <button className="relative inline-block text-sm lg:text-lg group w-[8.5rem] lg:w-[10rem] mt-7 lg:mt-16">
           <span className="relative z-10 block px-5 py-3 overflow-hidden font-medium leading-tight text-red-600 transition-colors duration-300 ease-out border-2 border-red-700 rounded-lg group-hover:text-white">

@@ -10,7 +10,8 @@ import { useApi } from "../context/ApiContext";
 const InputBar = () => {
   const [ytLink, setYtLink] = useState("");
   const navigate = useNavigate();
-  const { videoInfo, setVideoInfo } = useApi(); // context api calling
+  const { videoInfo, setVideoInfo, qualityOptions, setQualityOptions } =
+    useApi(); // context api calling
   // TODO: calling api handling all the logic after submission of link
   const ytLinkPattern = new RegExp(
     "^(?:https?:)?//?(?:www\\.)?((?:youtu(?:.be|be.com))/(?:watch\\?v=|embed/|v/)?|(?:youtube.com/.*?\\u0026)v=)([\\w-]+)(\\S+)?$"
@@ -57,7 +58,9 @@ const InputBar = () => {
         )
         .then((res) => {
           setVideoInfo(res.data);
-          console.log(videoInfo);
+          const qualityArray = Object.keys(res.data.quality);
+          setQualityOptions(qualityArray);
+          console.log(qualityOptions);
           notifySucess("Sucessfully fetched data");
           navigate("/download");
         })

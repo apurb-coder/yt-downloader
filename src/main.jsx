@@ -2,12 +2,15 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import App from "./App.jsx";
 import { BrowserRouter } from "react-router-dom";
+import { apiDataProvider } from "./context/apiContext.jsx";
 import "./index.css";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
-    <BrowserRouter>
-      <App />
-    </BrowserRouter>
+    <apiDataProvider>
+      <BrowserRouter>
+        <App />
+      </BrowserRouter>
+    </apiDataProvider>
   </React.StrictMode>
 );

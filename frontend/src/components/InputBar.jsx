@@ -81,7 +81,7 @@ const InputBar = () => {
           id="ytlink"
           placeholder="Paste your video link here"
           onChange={(e) => setYtLink(e.target.value)}
-          className="p-4  lg:w-[30rem] rounded-md border-2 border-neutral-400/50 focus:outline-none text-xs lg:text-sm"
+          className="p-4  lg:w-[30rem] rounded-md border-2 border-neutral-400/50 focus:outline-none text-xs lg:text-sm text-gray-500"
         />
         <button
           className="relative inline-block text-sm lg:text-lg group w-[8.5rem] lg:w-[10rem]"

@@ -49,10 +49,11 @@ const InputBar = () => {
       notifyError("Not A valid youtube link!");
       return;
     } else {
-      // setYtLink(encodeURIComponent(ytLink));
+      // encoded yt-link
+      const encodedYtLink= encodeURIComponent(ytLink)
       axios
         .get(
-          `http://localhost:8000/video-info/${ytLink}`
+          `http://localhost:8000/video-info/${encodedYtLink}`
         )
         .then((res) => {
           setVideoInfo(res.data);

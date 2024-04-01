@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { IoIosCloudDownload } from "react-icons/io";
 import { SiYoutube } from "react-icons/si";
@@ -57,7 +57,7 @@ const InputBar = () => {
           `http://localhost:8000/video-info/${encodedYtLink}`
         )
         .then((res) => {
-          setVideoInfo(res.data);
+          // setVideoInfo(res.data);
           const qualityArray = Object.keys(res.data.quality);
           setQualityOptions(qualityArray);
           console.log(qualityOptions);
@@ -69,6 +69,8 @@ const InputBar = () => {
         });
     }
   };
+
+
   return (
     <div className="flex flex-col justify-center items-center h-[100vh] lg:h-[89vh] mx-auto">
       <div className="flex  items-center space-x-1 text-3xl lg:text-5xl mb-10">

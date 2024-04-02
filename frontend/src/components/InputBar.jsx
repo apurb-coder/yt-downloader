@@ -11,12 +11,14 @@ const InputBar = () => {
   const [ytLink, setYtLink] = useState("");
   const navigate = useNavigate();
   const {
-    videoInfo,
-    setVideoInfo,
     qualityOptions,
     setQualityOptions,
     thumbline,
     setThumbline,
+    title,
+    setTitle,
+    duration,
+    setDuration,
   } = useApi(); // context api calling
   // TODO: calling api handling all the logic after submission of link
   const ytLinkPattern = new RegExp(
@@ -35,7 +37,7 @@ const InputBar = () => {
       transition: Bounce,
     });
   };
-  const notifySucess = (msg) =>{
+  const notifySucess = (msg) => {
     toast.success(msg, {
       position: "top-right",
       autoClose: 5000,
@@ -47,8 +49,8 @@ const InputBar = () => {
       theme: "light",
       transition: Bounce,
     });
-  }
-  const handleSubmit = async() => {
+  };
+  const handleSubmit = async () => {
     if (ytLink.length === 0) {
       notifyError("Youtube link not provided!");
       return;
@@ -57,17 +59,16 @@ const InputBar = () => {
       return;
     } else {
       // encoded yt-link
-      const encodedYtLink= encodeURIComponent(ytLink)
+      const encodedYtLink = encodeURIComponent(ytLink);
       axios
-        .get(
-          `http://localhost:8000/video-info/${encodedYtLink}`
-        )
+        .get(`http://localhost:8000/video-info/${encodedYtLink}`)
         .then((res) => {
-          const data = res.data;
-          setVideoInfo(data); // don't directly set values using res.data do it indirectly
           const qualityArray = Object.keys(res.data.quality);
           setQualityOptions(qualityArray);
-          console.log(videoInfo);
+          const thumblineData = res.data.videoDetails.thumbnails;
+          setThumbline((thumbline) => thumblineData);
+          setTitle(title => res.data.videoDetails.title);
+          setDuration(res.data.videoDetails.duration)
           notifySucess("Sucessfully fetched data");
           navigate("/download");
         })
@@ -76,7 +77,6 @@ const InputBar = () => {
         });
     }
   };
-
 
   return (
     <div className="flex flex-col justify-center items-center h-[100vh] lg:h-[89vh] mx-auto">

@@ -1,16 +1,25 @@
-import React from 'react'
+import React,{useState,useEffect} from 'react'
 import { IoIosCloudDownload } from "react-icons/io";
 import sampleThumbline from "../assets/sampleThumbline.jpg"
 import Select from "react-select";
 import { useApi } from '../context/ApiContext';
 
 const DownloadPage = () => {
-  const { qualityOptions } = useApi();
+  const {qualityOptions } = useApi();
+  const [optionsQualityObject, setOptionsQualityObject] = useState({});
+  useEffect(()=>{
+    qualityOptions.map((quality) => {
+      const newOptionsQualityObject = qualityOptions.map((quality) => ({
+        value: quality,
+        label: quality,
+      }));
+      setOptionsQualityObject(newOptionsQualityObject)
+    });
+  },[qualityOptions])
   const customStyles = {
     option: (provided, state) => ({ // styles for option element itself
       ...provided,
       borderRadius: "0.5rem",
-      borderWidth: "2px",
       borderColor: "rgba(107, 114, 128, 0.5)",
       outline: "none",
     }),
@@ -35,8 +44,8 @@ const DownloadPage = () => {
 
           <Select
             styles={customStyles}
-            defaultValue={qualityOptions[0]}
-            options={qualityOptions}
+            defaultValue={optionsQualityObject[0]}
+            options={optionsQualityObject}
           />
         </div>
         <button className="relative inline-block text-sm lg:text-lg group w-[8.5rem] lg:w-[10rem] mt-7 lg:mt-16">

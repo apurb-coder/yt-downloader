@@ -50,6 +50,28 @@ const InputBar = () => {
       transition: Bounce,
     });
   };
+  const notifyPromise = (requestPromise) => {
+    toast.promise(
+      requestPromise,
+      {
+        pending: "fetching data...",
+        success: "Data SucessFully fetched",
+        error: "Data fetching failed",
+      },
+      {
+        position: "top-right",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+        transition: Bounce,
+      }
+    );
+  };
+
   const handleSubmit = async () => {
     if (ytLink.length === 0) {
       notifyError("Youtube link not provided!");
@@ -60,21 +82,29 @@ const InputBar = () => {
     } else {
       // encoded yt-link
       const encodedYtLink = encodeURIComponent(ytLink);
-      axios
-        .get(`http://localhost:8000/video-info/${encodedYtLink}`)
-        .then((res) => {
-          const qualityArray = Object.keys(res.data.quality);
+      try{
+        const responsePromise =  () =>{
+          const response = axios.get(
+            `http://localhost:8000/video-info/${encodedYtLink}`
+          );
+          notifyPromise(response);
+          return response;
+        }
+        const response = await responsePromise();
+        if(response !== undefined){
+          const qualityArray = Object.keys(response.data.quality);
           setQualityOptions(qualityArray);
-          const thumblineData = res.data.videoDetails.thumbnails;
+          const thumblineData = response.data.videoDetails.thumbnails;
           setThumbline(thumblineData);
-          setTitle( res.data.videoDetails.title);
-          setDuration(res.data.videoDetails.duration)
-          notifySucess("Sucessfully fetched data");
+          setTitle(response.data.videoDetails.title);
+          setDuration(response.data.videoDetails.duration);
+          // notifySucess("Sucessfully fetched data");
           navigate("/download");
-        })
-        .catch((err) => {
-          notifyError("Error fetching data");
-        });
+        }
+      }catch(err){
+        console.log("Error fetching data");
+      }
+      
     }
   };
 

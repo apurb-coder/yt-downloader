@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { IoIosCloudDownload } from "react-icons/io";
-import sampleThumbline from "../assets/sampleThumbline.jpg";
+import axios from "axios";
 import Select from "react-select";
 import { useApi } from "../context/ApiContext";
 
@@ -34,12 +34,19 @@ const DownloadPage = () => {
       boxShadow: "none", // to remove the default react-select's box-shadow on focus
     }),
   };
+
+  // handle download function
+  const handleDownload = (e) =>{
+    console.log("test");
+  }
+
+
   return (
     <div className="flex justify-center items-center h-[100vh] lg:h-[89vh] mx-auto">
       <div className="flex flex-col justify-center items-center border-2 border-gray-700/50 rounded-md px-5 py-10 w-[80%] lg:w-[50%]">
         <div className="flex justify-between lg:justify-around items-center w-full flex-col lg:flex-row">
           <img
-            src={thumbline[thumbline.length - 1].url}
+            src={thumbline[thumbline.length - 1]?.url}
             alt="thumbline"
             className="w-[20rem] h-[11.25rem] rounded-lg"
           />
@@ -55,7 +62,7 @@ const DownloadPage = () => {
           <h3 className="mt-5">Duration:{" "}{duration&&duration}</h3>
         </div>
         <div className="z-0">
-          <button className="relative inline-block text-sm lg:text-lg group w-[8.5rem] lg:w-[10rem] mt-7 lg:mt-16">
+          <button className="relative inline-block text-sm lg:text-lg group w-[8.5rem] lg:w-[10rem] mt-7 lg:mt-16" onClick={handleDownload}>
             <span className="relative z-10 block px-5 py-3 overflow-hidden font-medium leading-tight text-red-600 transition-colors duration-300 ease-out border-2 border-red-700 rounded-lg group-hover:text-white">
               <span className="absolute inset-0 w-full h-full px-5 py-3 rounded-lg bg-gray-50"></span>
               <span className="absolute left-0 w-48 h-48 -ml-2 transition-all duration-300 origin-top-right -rotate-90 -translate-x-full translate-y-12 bg-red-700 group-hover:-rotate-180 ease"></span>

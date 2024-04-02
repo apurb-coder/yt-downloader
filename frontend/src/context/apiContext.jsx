@@ -9,9 +9,19 @@ export const useApi= () =>{
 export const ApiDataProvider= ({children})=>{
     const [videoInfo, setVideoInfo] = useState({})
     const [qualityOptions, setQualityOptions] = useState([])
+    const [thumbline, setThumbline] = useState("")
     return (
-        <ApiContext.Provider value={{videoInfo,setVideoInfo,qualityOptions,setQualityOptions}}>
-            {children}
-        </ApiContext.Provider>
+      <ApiContext.Provider
+        value={{
+          videoInfo,
+          setVideoInfo,
+          qualityOptions,
+          setQualityOptions,
+          thumbline,
+          setThumbline,
+        }}
+      >
+        {children}
+      </ApiContext.Provider>
     );
 }

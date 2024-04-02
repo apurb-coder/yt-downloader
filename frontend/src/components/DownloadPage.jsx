@@ -35,8 +35,8 @@ const DownloadPage = () => {
 
           <Select
             styles={customStyles}
-            // defaultValue={qualityOptions[0]}
-            // options={qualityOptions}
+            defaultValue={qualityOptions[0]}
+            options={qualityOptions}
           />
         </div>
         <button className="relative inline-block text-sm lg:text-lg group w-[8.5rem] lg:w-[10rem] mt-7 lg:mt-16">

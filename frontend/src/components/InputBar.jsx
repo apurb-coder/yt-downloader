@@ -10,8 +10,14 @@ import { useApi } from "../context/ApiContext";
 const InputBar = () => {
   const [ytLink, setYtLink] = useState("");
   const navigate = useNavigate();
-  const { videoInfo, setVideoInfo, qualityOptions, setQualityOptions } =
-    useApi(); // context api calling
+  const {
+    videoInfo,
+    setVideoInfo,
+    qualityOptions,
+    setQualityOptions,
+    thumbline,
+    setThumbline,
+  } = useApi(); // context api calling
   // TODO: calling api handling all the logic after submission of link
   const ytLinkPattern = new RegExp(
     "^(?:https?:)?//?(?:www\\.)?((?:youtu(?:.be|be.com))/(?:watch\\?v=|embed/|v/)?|(?:youtube.com/.*?\\u0026)v=)([\\w-]+)(\\S+)?$"
@@ -42,7 +48,7 @@ const InputBar = () => {
       transition: Bounce,
     });
   }
-  const handleSubmit = () => {
+  const handleSubmit = async() => {
     if (ytLink.length === 0) {
       notifyError("Youtube link not provided!");
       return;
@@ -57,10 +63,11 @@ const InputBar = () => {
           `http://localhost:8000/video-info/${encodedYtLink}`
         )
         .then((res) => {
-          // setVideoInfo(res.data);
+          const data = res.data;
+          setVideoInfo(data); // don't directly set values using res.data do it indirectly
           const qualityArray = Object.keys(res.data.quality);
           setQualityOptions(qualityArray);
-          console.log(qualityOptions);
+          console.log(videoInfo);
           notifySucess("Sucessfully fetched data");
           navigate("/download");
         })

@@ -24,6 +24,8 @@ const InputBar = () => {
   const ytLinkPattern = new RegExp(
     "^(?:https?:)?//?(?:www\\.)?((?:youtu(?:.be|be.com))/(?:watch\\?v=|embed/|v/)?|(?:youtube.com/.*?\\u0026)v=)([\\w-]+)(\\S+)?$"
   );
+
+  // Defining functions to show Toast 
   const notifyError = (msg) => {
     toast.error(msg, {
       position: "top-right",

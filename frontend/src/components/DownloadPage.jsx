@@ -7,7 +7,7 @@ import Select from "react-select";
 import { useApi } from "../context/ApiContext";
 
 const DownloadPage = () => {
-  const { title, duration, thumbline, qualityOptions } = useApi();
+  const { title, duration, thumbline, qualityOptions, ytLink } = useApi();
   const [optionsQualityObject, setOptionsQualityObject] = useState({});
   const [downloadOptionSelected, setDownloadOptionSelected] = useState("");
   useEffect(() => {
@@ -41,9 +41,9 @@ const DownloadPage = () => {
     toast.promise(
       requestPromise,
       {
-        pending: "fetching data...",
-        success: "Data SucessFully fetched",
-        error: "Data fetching failed",
+        pending: "Preparing your file...",
+        success: "Ready to download",
+        error: "Download failed",
       },
       {
         position: "top-right",
@@ -58,24 +58,42 @@ const DownloadPage = () => {
       }
     );
   };
-  // handle download function
-  const handleDownload = async() => {
+  const notifyError = (msg) => {
+    toast.error(msg, {
+      position: "top-right",
+      autoClose: 5000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+      theme: "light",
+      transition: Bounce,
+    });
+  };
+  // TODO: handle download function
+  const handleDownload = async () => {
     console.log(downloadOptionSelected);
-    // encoded yt-link
-    const encodedYtLink = encodeURIComponent(ytLink);
-    try {
-      const responsePromise = () => {
-        const response = axios.get(
-          `http://localhost:8000/video-download/${encodedYtLink}`
-        );
-        notifyPromise(response);
-        return response;
-      };
-      const response = await responsePromise();
-      if (response !== undefined) {
+    if (downloadOptionSelected.length === 0) {
+      notifyError("Quality of video not selected");
+    } else {
+      // encoded yt-link
+      const encodedYtLink = encodeURIComponent(ytLink);
+      try {
+        const responsePromise = () => {
+          const response = axios.get(
+            `http://localhost:8000/video-download/${encodedYtLink}`,
+            { data: { quality: downloadOptionSelected } }
+          );
+          notifyPromise(response);
+          return response;
+        };
+        const response = await responsePromise();
+        if (response !== undefined) {
+        }
+      } catch (err) {
+        console.log("Error fetching data");
       }
-    } catch (err) {
-      console.log("Error fetching data");
     }
   };
 
@@ -93,7 +111,7 @@ const DownloadPage = () => {
             defaultValue={optionsQualityObject[0]}
             options={optionsQualityObject}
             className="mt-7"
-            onChange={(option) => setDownloadOptionSelected(option)}
+            onChange={(option) => setDownloadOptionSelected(option.value)}
           />
         </div>
         <div className="text-gray-700/90 text-center mt-7">

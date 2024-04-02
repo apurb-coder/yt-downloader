@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { IoIosCloudDownload } from "react-icons/io";
 import sampleThumbline from "../assets/sampleThumbline.jpg";
 import Select from "react-select";
 import { useApi } from "../context/ApiContext";
 
 const DownloadPage = () => {
-  const { thumbline, qualityOptions } = useApi();
+  const { thumbline, qualityOptions, title } = useApi();
   const [optionsQualityObject, setOptionsQualityObject] = useState({});
   useEffect(() => {
     const newOptionsQualityObject = qualityOptions.map((quality) => ({
@@ -13,6 +13,7 @@ const DownloadPage = () => {
       label: quality,
     }));
     setOptionsQualityObject(newOptionsQualityObject);
+    console.log(title);
   }, [qualityOptions]);
   const customStyles = {
     option: (provided, state) => ({

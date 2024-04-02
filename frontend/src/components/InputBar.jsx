@@ -66,8 +66,8 @@ const InputBar = () => {
           const qualityArray = Object.keys(res.data.quality);
           setQualityOptions(qualityArray);
           const thumblineData = res.data.videoDetails.thumbnails;
-          setThumbline((thumbline) => thumblineData);
-          setTitle(title => res.data.videoDetails.title);
+          setThumbline(thumblineData);
+          setTitle( res.data.videoDetails.title);
           setDuration(res.data.videoDetails.duration)
           notifySucess("Sucessfully fetched data");
           navigate("/download");

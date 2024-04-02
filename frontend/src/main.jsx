@@ -7,11 +7,12 @@ import "./index.css";
 
 
 ReactDOM.createRoot(document.getElementById("root")).render(
-  <React.StrictMode>
+  //if you use strict mode it re-renders you components twice during development mode to detect potential problems
+  <>
     <ApiDataProvider>
       <BrowserRouter>
         <App />
       </BrowserRouter>
     </ApiDataProvider>
-  </React.StrictMode>
+  </>
 );

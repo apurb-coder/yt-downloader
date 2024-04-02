@@ -77,9 +77,8 @@ const DownloadPage = () => {
   // function to start downloading file
   // IMPORTANT: axios.get() request can't handle the download of files directly in the browser. You need to create a link element and simulate a click on it to trigger the download.
   const startDownload = async () => {
-    const encodeFilePath = encodeURIComponent(filePath);
-    const response = await axios.get(`http://localhost:8000/${encodeFilePath}`,
-      { data: { fileName: "output.mp4" } },
+    const response = await axios.post(`http://localhost:8000/${filePath}`,
+      { "fileName": fileName },
       { responseType: "blob" } //importent
     );
 
@@ -96,7 +95,7 @@ const DownloadPage = () => {
     // create "a" HTML element with href to file & click
     const link = document.createElement("a");
     link.href = href;
-    // link.setAttribute("download", "file.pdf"); //or any other extension
+    link.setAttribute("download", fileName); //or any other extension
     document.body.appendChild(link);
     link.click();
 
@@ -114,9 +113,9 @@ const DownloadPage = () => {
       const encodedYtLink = encodeURIComponent(ytLink);
       try {
         const responsePromise = () => {
-          const response = axios.get(
+          const response = axios.post(
             `http://localhost:8000/video-download/${encodedYtLink}`,
-            { data: { quality: downloadOptionSelected } }
+            {  "quality" : downloadOptionSelected }
           );
           notifyPromise(
             response,

@@ -10,6 +10,9 @@ const DownloadPage = () => {
   const { title, duration, thumbline, qualityOptions, ytLink } = useApi();
   const [optionsQualityObject, setOptionsQualityObject] = useState({});
   const [downloadOptionSelected, setDownloadOptionSelected] = useState("");
+  const [filePath, setFilePath] = useState("");
+  const [fileName, setFileName] = useState("");
+
   useEffect(() => {
     const newOptionsQualityObject = qualityOptions.map((quality) => ({
       value: quality,
@@ -37,13 +40,13 @@ const DownloadPage = () => {
       boxShadow: "none", // to remove the default react-select's box-shadow on focus
     }),
   };
-  const notifyPromise = (requestPromise) => {
+  const notifyPromise = (requestPromise, pendingMsg, sucessMsg, errorMsg) => {
     toast.promise(
       requestPromise,
       {
-        pending: "Preparing your file...",
-        success: "Download will start shortly",
-        error: "Download failed",
+        pending: pendingMsg,
+        success: sucessMsg,
+        error: errorMsg,
       },
       {
         position: "top-right",
@@ -71,6 +74,36 @@ const DownloadPage = () => {
       transition: Bounce,
     });
   };
+  // function to start downloading file
+  // IMPORTANT: axios.get() request can't handle the download of files directly in the browser. You need to create a link element and simulate a click on it to trigger the download.
+  const startDownload = async () => {
+    const encodeFilePath = encodeURIComponent(filePath);
+    const response = await axios.get(`http://localhost:8000/${encodeFilePath}`,
+      { data: { fileName: "output.mp4" } },
+      { responseType: "blob" } //importent
+    );
+
+    // notifyPromise(
+    //   response,
+    //   "Downloading...",
+    //   "Completed Download",
+    //   "Error Downloading File"
+    // );
+
+    // create file link in browser's memory
+    const href = URL.createObjectURL(response.data);
+
+    // create "a" HTML element with href to file & click
+    const link = document.createElement("a");
+    link.href = href;
+    // link.setAttribute("download", "file.pdf"); //or any other extension
+    document.body.appendChild(link);
+    link.click();
+
+    // clean up "a" element & remove ObjectURL
+    document.body.removeChild(link);
+    URL.revokeObjectURL(href);
+  };
   // TODO: handle download function
   const handleDownload = async () => {
     console.log(downloadOptionSelected);
@@ -85,11 +118,19 @@ const DownloadPage = () => {
             `http://localhost:8000/video-download/${encodedYtLink}`,
             { data: { quality: downloadOptionSelected } }
           );
-          notifyPromise(response);
+          notifyPromise(
+            response,
+            "Preparing your file...",
+            "Download will start shortly",
+            "Download failed"
+          );
+          setFilePath(response.data?.filePath);
+          setFileName(response.data?.fileName);
           return response;
         };
         const response = await responsePromise();
         if (response !== undefined) {
+          await startDownload(); // starting download
         }
       } catch (err) {
         console.log("Error fetching data");

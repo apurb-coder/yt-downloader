@@ -5,7 +5,7 @@ import Select from "react-select";
 import { useApi } from "../context/ApiContext";
 
 const DownloadPage = () => {
-  const { thumbline, qualityOptions, title } = useApi();
+  const { title, duration, thumbline, qualityOptions } = useApi();
   const [optionsQualityObject, setOptionsQualityObject] = useState({});
   useEffect(() => {
     const newOptionsQualityObject = qualityOptions.map((quality) => ({
@@ -13,7 +13,7 @@ const DownloadPage = () => {
       label: quality,
     }));
     setOptionsQualityObject(newOptionsQualityObject);
-    console.log(title);
+    console.log(thumbline);
   }, [qualityOptions]);
   const customStyles = {
     option: (provided, state) => ({
@@ -39,17 +39,20 @@ const DownloadPage = () => {
       <div className="flex flex-col justify-center items-center border-2 border-gray-700/50 rounded-md px-5 py-10 w-[80%] lg:w-[50%]">
         <div className="flex justify-between lg:justify-around items-center w-full flex-col lg:flex-row">
           <img
-            src={sampleThumbline}
+            src={thumbline[thumbline.length - 1].url}
             alt="thumbline"
             className="w-[20rem] h-[11.25rem] rounded-lg"
           />
-
           <Select
             styles={customStyles}
             defaultValue={optionsQualityObject[0]}
             options={optionsQualityObject}
             className="mt-7"
           />
+        </div>
+        <div className="text-gray-700/90 text-center mt-7">
+          <h3>{title && title}</h3>
+          <h3 className="mt-5">Duration:{" "}{duration&&duration}</h3>
         </div>
         <div className="z-0">
           <button className="relative inline-block text-sm lg:text-lg group w-[8.5rem] lg:w-[10rem] mt-7 lg:mt-16">

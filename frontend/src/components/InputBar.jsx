@@ -8,9 +8,9 @@ import "react-toastify/dist/ReactToastify.css";
 import { useApi } from "../context/ApiContext";
 
 const InputBar = () => {
-  const [ytLink, setYtLink] = useState("");
   const navigate = useNavigate();
   const {
+    ytLink, setYtLink,
     qualityOptions,
     setQualityOptions,
     thumbline,

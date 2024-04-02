@@ -7,6 +7,7 @@ export const useApi= () =>{
 }
 
 export const ApiDataProvider= ({children})=>{
+    const [ytLink, setYtLink] = useState("")
     const [qualityOptions, setQualityOptions] = useState([])
     const [thumbline, setThumbline] = useState("")
     const [title, setTitle] = useState("")
@@ -14,6 +15,7 @@ export const ApiDataProvider= ({children})=>{
     return (
       <ApiContext.Provider
         value={{
+          ytLink, setYtLink,
           qualityOptions,
           setQualityOptions,
           thumbline,

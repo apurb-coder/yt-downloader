@@ -1,12 +1,15 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { IoIosCloudDownload } from "react-icons/io";
 import axios from "axios";
+import { Bounce, toast } from "react-toastify"; // Dont forget to import bounce
+import "react-toastify/dist/ReactToastify.css";
 import Select from "react-select";
 import { useApi } from "../context/ApiContext";
 
 const DownloadPage = () => {
   const { title, duration, thumbline, qualityOptions } = useApi();
   const [optionsQualityObject, setOptionsQualityObject] = useState({});
+  const [downloadOptionSelected, setDownloadOptionSelected] = useState("");
   useEffect(() => {
     const newOptionsQualityObject = qualityOptions.map((quality) => ({
       value: quality,
@@ -34,12 +37,47 @@ const DownloadPage = () => {
       boxShadow: "none", // to remove the default react-select's box-shadow on focus
     }),
   };
-
+  const notifyPromise = (requestPromise) => {
+    toast.promise(
+      requestPromise,
+      {
+        pending: "fetching data...",
+        success: "Data SucessFully fetched",
+        error: "Data fetching failed",
+      },
+      {
+        position: "top-right",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+        transition: Bounce,
+      }
+    );
+  };
   // handle download function
-  const handleDownload = (e) =>{
-    console.log("test");
-  }
-
+  const handleDownload = async() => {
+    console.log(downloadOptionSelected);
+    // encoded yt-link
+    const encodedYtLink = encodeURIComponent(ytLink);
+    try {
+      const responsePromise = () => {
+        const response = axios.get(
+          `http://localhost:8000/video-download/${encodedYtLink}`
+        );
+        notifyPromise(response);
+        return response;
+      };
+      const response = await responsePromise();
+      if (response !== undefined) {
+      }
+    } catch (err) {
+      console.log("Error fetching data");
+    }
+  };
 
   return (
     <div className="flex justify-center items-center h-[100vh] lg:h-[89vh] mx-auto">
@@ -55,14 +93,18 @@ const DownloadPage = () => {
             defaultValue={optionsQualityObject[0]}
             options={optionsQualityObject}
             className="mt-7"
+            onChange={(option) => setDownloadOptionSelected(option)}
           />
         </div>
         <div className="text-gray-700/90 text-center mt-7">
           <h3>{title && title}</h3>
-          <h3 className="mt-5">Duration:{" "}{duration&&duration}</h3>
+          <h3 className="mt-5">Duration: {duration && duration}</h3>
         </div>
         <div className="z-0">
-          <button className="relative inline-block text-sm lg:text-lg group w-[8.5rem] lg:w-[10rem] mt-7 lg:mt-16" onClick={handleDownload}>
+          <button
+            className="relative inline-block text-sm lg:text-lg group w-[8.5rem] lg:w-[10rem] mt-7 lg:mt-16"
+            onClick={handleDownload}
+          >
             <span className="relative z-10 block px-5 py-3 overflow-hidden font-medium leading-tight text-red-600 transition-colors duration-300 ease-out border-2 border-red-700 rounded-lg group-hover:text-white">
               <span className="absolute inset-0 w-full h-full px-5 py-3 rounded-lg bg-gray-50"></span>
               <span className="absolute left-0 w-48 h-48 -ml-2 transition-all duration-300 origin-top-right -rotate-90 -translate-x-full translate-y-12 bg-red-700 group-hover:-rotate-180 ease"></span>

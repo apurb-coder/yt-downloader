@@ -42,7 +42,7 @@ const DownloadPage = () => {
       requestPromise,
       {
         pending: "Preparing your file...",
-        success: "Ready to download",
+        success: "Download will start shortly",
         error: "Download failed",
       },
       {

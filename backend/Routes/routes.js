@@ -29,9 +29,9 @@ router.get("/video-info/:yt_link", async (req, res) => {
     //filling the video details inside optionDownload object
     optionsDownload.videoDetails = {
       title: info.videoDetails.title,
-      duration: `${Math.floor(info.videoDetails.lengthSeconds / 60)}:${
-        info.videoDetails.lengthSeconds % 60
-      }`,
+      duration: `${Math.floor(info.videoDetails.lengthSeconds / 3600)!==0?`${Math.floor(info.videoDetails.lengthSeconds / 3600)}:`:""}${
+        Math.floor((info.videoDetails.lengthSeconds % 3600)/60)
+      }:${info.videoDetails.lengthSeconds % 60}`,
       thumbnails: info.videoDetails.thumbnails,
       videoId: info.videoDetails.videoId,
     };

@@ -1,35 +1,37 @@
-import React,{useState,useEffect} from 'react'
+import React, { useState, useEffect } from "react";
 import { IoIosCloudDownload } from "react-icons/io";
-import sampleThumbline from "../assets/sampleThumbline.jpg"
+import sampleThumbline from "../assets/sampleThumbline.jpg";
 import Select from "react-select";
-import { useApi } from '../context/ApiContext';
+import { useApi } from "../context/ApiContext";
 
 const DownloadPage = () => {
-  const {qualityOptions } = useApi();
+  const { thumbline, qualityOptions } = useApi();
   const [optionsQualityObject, setOptionsQualityObject] = useState({});
-  useEffect(()=>{
+  useEffect(() => {
     const newOptionsQualityObject = qualityOptions.map((quality) => ({
       value: quality,
       label: quality,
     }));
     setOptionsQualityObject(newOptionsQualityObject);
-  },[qualityOptions])
+  }, [qualityOptions]);
   const customStyles = {
-    option: (provided, state) => ({ // styles for option element itself
+    option: (provided, state) => ({
+      // styles for option element itself
       ...provided,
       borderRadius: "0.5rem",
-      width:"100%",
+      width: "100%",
       borderColor: "rgba(107, 114, 128, 0.5)",
       outline: "none",
     }),
-    control: (provided) => ({ // styles for control element itself
+    control: (provided) => ({
+      // styles for control element itself
       ...provided,
       borderRadius: "0.5rem", // equivalent to rounded-lg
       borderWidth: "2px", // equivalent to border-2
       borderColor: "rgba(107, 114, 128, 0.5)", // equivalent to border-gray-700/50
       outline: "none", // equivalent to outline-none
       boxShadow: "none", // to remove the default react-select's box-shadow on focus
-    })
+    }),
   };
   return (
     <div className="flex justify-center items-center h-[100vh] lg:h-[89vh] mx-auto">
@@ -67,6 +69,6 @@ const DownloadPage = () => {
       </div>
     </div>
   );
-}
+};
 
-export default DownloadPage
+export default DownloadPage;

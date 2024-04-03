@@ -3,7 +3,7 @@ import fs from "fs";
 import ffmpeg from "fluent-ffmpeg";
 
 //function to combine a video and a audio using ffmpeg
-const combineVideoAndAudio = async (videoPath, audioPath, outputPath) => {
+const combineVideoAndAudio = (videoPath, audioPath, outputPath) => {
   const command = ffmpeg()
     .input(videoPath)
     .input(audioPath)
@@ -72,9 +72,9 @@ const videoAudioDownloadBoth = (itagVal, videoId, folder) => {
         });
 
         // When the download is complete, show a message
-        outputStreamAudio.on("finish", () => {
+        outputStreamAudio.on("finish", async() => {
           console.log(`Finished downloading: ${outputFilePathAudio}`);
-          combineVideoAndAudio(
+          await combineVideoAndAudio(
             outputFilePathVideo,
             outputFilePathAudio,
             outputFilePath

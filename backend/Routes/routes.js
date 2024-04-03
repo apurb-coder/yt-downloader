@@ -7,10 +7,11 @@ import {
   videoAudioDownloadBoth,
   decodeURLAndFolderName,
 } from "./download.js";
-import { log } from "console";
+
 
 const router = express.Router();
 
+let fileName_=""
 // NOTE: ':yt_link' must be encoded using encodeURIComponent() before hitting the endpoint
 router.get("/video-info/:yt_link", async (req, res) => {
   try {
@@ -133,6 +134,7 @@ router.post("/video-download/:yt_link", async (req, res) => {
     }
 
     const filePath = `${folder_path}/${fileName}`;
+    fileName_ = fileName;
     console.log(filePath);
     // Send a response to the client
     res.json({
@@ -155,8 +157,8 @@ let isDownloadInProgress = false;
 router.get("/:filePath", async (req, res) => {
   const filePath =req.params.filePath;
   console.log(`http://localhost:8000/${filePath}`);
-  const fileName = "output.mp4"
-
+  const fileName = fileName_
+  
   try {
     
 
@@ -186,18 +188,10 @@ router.get("/:filePath", async (req, res) => {
 
 // Function to clean up temporary files and folders
 function cleanupDownload(filePath) {
-  const folderPath = path.dirname(filePath);
-
-  // Delete the downloaded file
-  fs.unlinkSync(filePath);
-
-  // Delete any other temporary files in the folder
-  fs.readdirSync(folderPath).forEach((file) => {
-    fs.unlinkSync(path.join(folderPath, file));
-  });
+  const folderPath = decodeURIComponent(filePath)
 
   // Delete the folder
-  fs.rmdir(folderPath, { recursive: true }, (err) => {
+  fs.rm(folderPath, { recursive: true }, (err) => {
     if (err) {
       console.error("Error deleting folder:", err);
     } else {

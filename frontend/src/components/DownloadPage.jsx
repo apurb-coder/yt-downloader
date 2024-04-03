@@ -108,7 +108,7 @@ const DownloadPage = () => {
         const response = await responsePromise();
         if (response !== undefined) {
           startDownload(
-            `http://localhost:8000/${filePath}`
+            `http://localhost:8000/${newFilePath}`
           ); // starting download
         }
       } catch (err) {

@@ -3,7 +3,7 @@ import fs from "fs";
 import ffmpeg from "fluent-ffmpeg";
 
 //function to combine a video and a audio using ffmpeg
-const combineVideoAndAudio = (videoPath, audioPath, outputPath) => {
+const combineVideoAndAudio = async (videoPath, audioPath, outputPath) => {
   const command = ffmpeg()
     .input(videoPath)
     .input(audioPath)

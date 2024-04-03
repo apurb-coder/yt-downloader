@@ -75,7 +75,7 @@ const DownloadPage = () => {
     });
   };
   // function to start downloading file
-  // IMPORTANT: axios.get() request can't handle the download of files directly in the browser. You need to create a link element and simulate a click on it to trigger the download.
+  
   const startDownload =  (url) => {
     window.open(url)
   };

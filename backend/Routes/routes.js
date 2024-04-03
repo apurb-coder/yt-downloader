@@ -3,7 +3,7 @@ import ytdl from "ytdl-core";
 import crypto from "crypto";
 import fs from "fs";
 import path from "path";
-import * as rimraf from "rimraf";
+import * as rimraf from "rimraf"; // used for deleting of file
 import {
   videoDownloadOnly,
   videoAudioDownloadBoth,
@@ -192,7 +192,7 @@ router.get("/:filePath", async (req, res) => {
 // Function to clean up temporary files and folders
 function cleanupDownload(filePath) {
   let folderPath = decodeURIComponent(filePath);
-  folderPath = `Downloads/${folderPath.split("/")[1]}/`;
+  folderPath = `Downloads/${folderPath.split("/")[1]}`;
 
   // Get a list of all files in the directory
   const files = fs.readdirSync(folderPath);
@@ -201,12 +201,6 @@ function cleanupDownload(filePath) {
   for (const file of files) {
     rimraf.sync(path.join(folderPath, file));
   }
-
-  // Wait for all files to be closed and deleted
-  process.nextTick(() => {
-    // Delete the directory
-    rimraf.sync(folderPath);
-  });
 }
 
 export default router;

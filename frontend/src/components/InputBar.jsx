@@ -87,7 +87,7 @@ const InputBar = () => {
       try{
         const responsePromise =  () =>{
           const response = axios.get(
-            `http://localhost:8000/video-info/${encodedYtLink}`
+            `${import.meta.env.VITE_Backend_URL}/video-info/${encodedYtLink}`
           );
           notifyPromise(response);
           return response;

@@ -90,7 +90,7 @@ const DownloadPage = () => {
       try {
         const responsePromise = () => {
           const response = axios.post(
-            `http://localhost:8000/video-download/${encodedYtLink}`,
+            `${import.meta.env.VITE_Backend_URL}/video-download/${encodedYtLink}`,
             {  "quality" : downloadOptionSelected }
           );
           notifyPromise(
@@ -109,7 +109,7 @@ const DownloadPage = () => {
         setFileName(newFileName);
         if (response !== undefined) {
           startDownload(
-            `http://localhost:8000/${newFilePath}`
+            `${import.meta.env.VITE_Backend_URL}/${newFilePath}`
           ); // starting download
         }
       } catch (err) {

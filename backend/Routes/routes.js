@@ -162,7 +162,7 @@ let isDownloadInProgress = false;
 router.get("/:filePath", async (req, res) => {
   const filePath = req.params.filePath;
   console.log(`http://localhost:8000/${filePath}`);
-  const fileName = fileName_;
+  const fileName = fileName_ || "output.mp4";
 
   try {
     // Set appropriate headers for file download

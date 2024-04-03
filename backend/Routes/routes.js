@@ -151,7 +151,8 @@ let isDownloadInProgress = false;
 
 // must give the correct file path
 router.post("/:filePath", (req, res) => {
-  const filePath = req.params.filePath; // extracting :filePath from the url
+  const filePath = decodeURIComponent(req.params.filePath); // extracting :filePath from the url
+  console.log(`TEST:${filePath}`);
   try {
     if (isDownloadInProgress) {
       // If a download is already in progress, send a response indicating that

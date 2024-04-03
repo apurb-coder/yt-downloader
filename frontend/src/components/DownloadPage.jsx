@@ -77,31 +77,26 @@ const DownloadPage = () => {
   // function to start downloading file
   // IMPORTANT: axios.get() request can't handle the download of files directly in the browser. You need to create a link element and simulate a click on it to trigger the download.
   const startDownload = async () => {
-    const response = axios.post(`http://localhost:8000/${filePath}`,
-      { "fileName": fileName },
-      { responseType: "blob" } //importent
-    );
+    try {
+      const response = await axios.post(
+        `http://localhost:8000/${filePath}`,
+        { fileName: fileName },
+        { responseType: "blob" } //importent
+      );
 
-    notifyPromise(
-      response,
-      "Downloading...",
-      "Completed Download",
-      "Error Downloading File"
-    );
+      const blob = new Blob([response.data]);
+      const link = document.createElement("a");
 
-    // create file link in browser's memory
-    const href = URL.createObjectURL(`http://localhost:8000/${filePath}`);
+      link.href = URL.createObjectURL(blob);
+      link.download = fileName;
+      link.click();
 
-    // create "a" HTML element with href to file & click
-    const link = document.createElement("a");
-    link.href = href;
-    link.setAttribute("download", fileName); //or any other extension
-    document.body.appendChild(link);
-    link.click();
-
-    // clean up "a" element & remove ObjectURL
-    document.body.removeChild(link);
-    URL.revokeObjectURL(href);
+      // Optional: Revoke the object URL to avoid memory leaks
+      URL.revokeObjectURL(link.href);
+    } catch (error) {
+      console.error("Error downloading file:", error);
+      // Handle download errors gracefully (e.g., display an error message to the user)
+    }
   };
   // TODO: handle download function
   const handleDownload = async () => {
@@ -123,13 +118,15 @@ const DownloadPage = () => {
             "Download will start shortly",
             "Download failed"
           );
-          setFilePath(response.data?.filePath);
-          setFileName(response.data?.fileName);
+          const newFilePath = response.data?.filePath;
+          const newFileName = response.data?.fileName;
+          setFilePath(newFilePath);
+          setFileName(newFileName);
           return response;
         };
         const response = await responsePromise();
         if (response !== undefined) {
-          await startDownload(); // starting download
+          startDownload(); // starting download
         }
       } catch (err) {
         console.log("Error fetching data");

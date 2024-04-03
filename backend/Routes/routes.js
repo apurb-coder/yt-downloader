@@ -153,15 +153,12 @@ let isDownloadInProgress = false;
 // must give the correct file path
 // Must give the correct file path
 router.get("/:filePath", async (req, res) => {
-  const filePath = decodeURIComponent(req.params.filePath);
+  const filePath =req.params.filePath;
   console.log(`http://localhost:8000/${filePath}`);
   const fileName = "output.mp4"
 
   try {
-    // Check if the file exists and the server has permission to read it
-    if (!fs.existsSync(filePath) || !fs.accessSync(filePath, fs.constants.R_OK)) {
-      return res.status(404).send("File not found or access denied");
-    }
+    
 
     // Set appropriate headers for file download
     res.setHeader("Content-Disposition", `attachment; filename="${fileName}"`);

@@ -99,13 +99,14 @@ const DownloadPage = () => {
             "Download will start shortly",
             "Download failed"
           );
-          const newFilePath = response.data?.filePath;
-          const newFileName = response.data?.fileName;
-          setFilePath(newFilePath);
-          setFileName(newFileName);
+          
           return response;
         };
         const response = await responsePromise();
+        const newFilePath = response.data?.filePath;
+        const newFileName = response.data?.fileName;
+        setFilePath(newFilePath);
+        setFileName(newFileName);
         if (response !== undefined) {
           startDownload(
             `http://localhost:8000/${newFilePath}`

@@ -2,16 +2,17 @@ import express from "express";
 import ytdl from "ytdl-core";
 import crypto from "crypto";
 import fs from "fs";
+import path from "path";
+import * as rimraf from "rimraf";
 import {
   videoDownloadOnly,
   videoAudioDownloadBoth,
   decodeURLAndFolderName,
 } from "./download.js";
 
-
 const router = express.Router();
 
-let fileName_=""
+let fileName_ = "";
 // NOTE: ':yt_link' must be encoded using encodeURIComponent() before hitting the endpoint
 router.get("/video-info/:yt_link", async (req, res) => {
   try {
@@ -31,9 +32,13 @@ router.get("/video-info/:yt_link", async (req, res) => {
     //filling the video details inside optionDownload object
     optionsDownload.videoDetails = {
       title: info.videoDetails.title,
-      duration: `${Math.floor(info.videoDetails.lengthSeconds / 3600)!==0?`${Math.floor(info.videoDetails.lengthSeconds / 3600)}:`:""}${
-        Math.floor((info.videoDetails.lengthSeconds % 3600)/60)
-      }:${info.videoDetails.lengthSeconds % 60}`,
+      duration: `${
+        Math.floor(info.videoDetails.lengthSeconds / 3600) !== 0
+          ? `${Math.floor(info.videoDetails.lengthSeconds / 3600)}:`
+          : ""
+      }${Math.floor((info.videoDetails.lengthSeconds % 3600) / 60)}:${
+        info.videoDetails.lengthSeconds % 60
+      }`,
       thumbnails: info.videoDetails.thumbnails,
       videoId: info.videoDetails.videoId,
     };
@@ -155,13 +160,11 @@ let isDownloadInProgress = false;
 // must give the correct file path
 // Must give the correct file path
 router.get("/:filePath", async (req, res) => {
-  const filePath =req.params.filePath;
+  const filePath = req.params.filePath;
   console.log(`http://localhost:8000/${filePath}`);
-  const fileName = fileName_
-  
-  try {
-    
+  const fileName = fileName_;
 
+  try {
     // Set appropriate headers for file download
     res.setHeader("Content-Disposition", `attachment; filename="${fileName}"`);
     res.setHeader("Content-Type", "application/octet-stream");
@@ -188,15 +191,21 @@ router.get("/:filePath", async (req, res) => {
 
 // Function to clean up temporary files and folders
 function cleanupDownload(filePath) {
-  const folderPath = decodeURIComponent(filePath)
+  let folderPath = decodeURIComponent(filePath);
+  folderPath = `Downloads/${folderPath.split("/")[1]}/`;
 
-  // Delete the folder
-  fs.rm(folderPath, { recursive: true }, (err) => {
-    if (err) {
-      console.error("Error deleting folder:", err);
-    } else {
-      console.log(`Deleted folder: ${folderPath}`);
-    }
+  // Get a list of all files in the directory
+  const files = fs.readdirSync(folderPath);
+
+  // Delete each file
+  for (const file of files) {
+    rimraf.sync(path.join(folderPath, file));
+  }
+
+  // Wait for all files to be closed and deleted
+  process.nextTick(() => {
+    // Delete the directory
+    rimraf.sync(folderPath);
   });
 }
 

@@ -76,27 +76,8 @@ const DownloadPage = () => {
   };
   // function to start downloading file
   // IMPORTANT: axios.get() request can't handle the download of files directly in the browser. You need to create a link element and simulate a click on it to trigger the download.
-  const startDownload = async () => {
-    try {
-      const response = await axios.post(
-        `http://localhost:8000/${filePath}`,
-        { fileName: fileName },
-        { responseType: "blob" } //importent
-      );
-
-      const blob = new Blob([response.data]);
-      const link = document.createElement("a");
-
-      link.href = URL.createObjectURL(blob);
-      link.download = fileName;
-      link.click();
-
-      // Optional: Revoke the object URL to avoid memory leaks
-      URL.revokeObjectURL(link.href);
-    } catch (error) {
-      console.error("Error downloading file:", error);
-      // Handle download errors gracefully (e.g., display an error message to the user)
-    }
+  const startDownload =  (url) => {
+    window.open(url)
   };
   // TODO: handle download function
   const handleDownload = async () => {
@@ -126,7 +107,9 @@ const DownloadPage = () => {
         };
         const response = await responsePromise();
         if (response !== undefined) {
-          startDownload(); // starting download
+          startDownload(
+            `http://localhost:8000/${filePath}`
+          ); // starting download
         }
       } catch (err) {
         console.log("Error fetching data");

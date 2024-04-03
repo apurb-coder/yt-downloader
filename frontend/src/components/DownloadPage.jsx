@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { IoIosCloudDownload } from "react-icons/io";
 import axios from "axios";
 import { Bounce, toast } from "react-toastify"; // Dont forget to import bounce
@@ -10,9 +11,12 @@ const DownloadPage = () => {
   const { title, duration, thumbline, qualityOptions, ytLink } = useApi();
   const [optionsQualityObject, setOptionsQualityObject] = useState({});
   const [downloadOptionSelected, setDownloadOptionSelected] = useState("");
-  const [filePath, setFilePath] = useState("");
-  const [fileName, setFileName] = useState("");
-
+  const navigate=  useNavigate();
+  useEffect(()=>{
+    if(thumbline.length===0 && title.length===0 && ytLink.length===0){
+      navigate("/")
+    }
+  },[])
   useEffect(() => {
     const newOptionsQualityObject = qualityOptions.map((quality) => ({
       value: quality,
@@ -104,9 +108,6 @@ const DownloadPage = () => {
         };
         const response = await responsePromise();
         const newFilePath = response.data?.filePath;
-        const newFileName = response.data?.fileName;
-        setFilePath(newFilePath);
-        setFileName(newFileName);
         if (response !== undefined) {
           startDownload(
             `${import.meta.env.VITE_Backend_URL}/${newFilePath}`

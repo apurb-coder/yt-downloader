@@ -81,7 +81,7 @@ const DownloadPage = () => {
   // function to start downloading file
   
   const startDownload =  (url) => {
-    window.open(url)
+    window.location.href = url;
   };
   // TODO: handle download function
   const handleDownload = async () => {

@@ -161,4 +161,3 @@ backend/
 
 MIT (free to use and modify)
 
-```

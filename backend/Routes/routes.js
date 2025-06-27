@@ -1,5 +1,5 @@
 import express from "express";
-import ytdl from "ytdl-core";
+import { exec } from "child_process";
 import crypto from "crypto";
 import fs from "fs";
 import path from "path";
@@ -8,6 +8,7 @@ import {
   videoDownloadOnly,
   videoAudioDownloadBoth,
   decodeURLAndFolderName,
+  getYouTubeVideoId,
 } from "./download.js";
 
 const router = express.Router();
@@ -18,48 +19,49 @@ router.get("/video-info/:yt_link", async (req, res) => {
   try {
     //use encodeURIComponent() to encode utl in the front-end and then send it to back-end
     const videoId = req.params.yt_link; // url se :yt_link ka content extract karta hai
+    const extractedVideoId = getYouTubeVideoId(videoId);
 
-    if (!videoId) {
+    if (!extractedVideoId) {
       throw new Error("Invalid YouTube video link");
     }
 
     // Use await to wait for the getInfo operation to complete
-    const info = await ytdl.getInfo(videoId);
+    const { stdout } = await new Promise((resolve, reject) => {
+      exec(`yt-dlp --dump-json https://www.youtube.com/watch?v=${extractedVideoId}`, (error, stdout, stderr) => {
+        if (error) {
+          console.error(`exec error: ${error}`);
+          return reject(error);
+        }
+        resolve({ stdout, stderr });
+      });
+    });
 
-    const formats = ytdl.filterFormats(info.formats, "video");
-    // object of available download options
+    const info = JSON.parse(stdout);
+
     const optionsDownload = { videoDetails: {}, quality: {} };
-    //filling the video details inside optionDownload object
     optionsDownload.videoDetails = {
-      title: info.videoDetails.title,
+      title: info.title,
       duration: `${
-        Math.floor(info.videoDetails.lengthSeconds / 3600) !== 0
-          ? `${Math.floor(info.videoDetails.lengthSeconds / 3600)}:`
+        Math.floor(info.duration / 3600) !== 0
+          ? `${Math.floor(info.duration / 3600)}:`
           : ""
-      }${Math.floor((info.videoDetails.lengthSeconds % 3600) / 60)}:${
-        info.videoDetails.lengthSeconds % 60
-      }`,
-      thumbnails: info.videoDetails.thumbnails,
-      videoId: info.videoDetails.videoId,
+      }${Math.floor((info.duration % 3600) / 60)}:${info.duration % 60}`,
+      thumbnails: info.thumbnails,
+      videoId: info.id,
     };
 
-    formats.forEach((format) => {
-      if (format.container === "mp4") {
-        optionsDownload.quality[format.qualityLabel] = {
-          container: format.container,
-          itag: format.itag,
-          audioExist: format.audioCodec === null ? false : true,
+    info.formats.forEach((format) => {
+      if (format.ext === "mp4" && format.vcodec !== "none" && format.acodec !== "none") {
+        optionsDownload.quality[format.format_note] = {
+          container: format.ext,
+          itag: format.format_id,
+          audioExist: true,
         };
-      }
-      if (
-        format.qualityLabel === "2160p" ||
-        format.qualityLabel === "1440p" ||
-        format.qualityLabel === "2160p60"
-      ) {
-        optionsDownload.quality[format.qualityLabel] = {
-          container: format.container,
-          itag: format.itag,
-          audioExist: format.audioCodec === null ? false : true,
+      } else if (format.ext === "mp4" && format.vcodec !== "none" && format.acodec === "none") {
+        optionsDownload.quality[format.format_note] = {
+          container: format.ext,
+          itag: format.format_id,
+          audioExist: false,
         };
       }
     });
@@ -84,35 +86,49 @@ router.post("/video-download/:yt_link", async (req, res) => {
     fs.mkdirSync(folder_path);
 
     const videoId = req.params.yt_link;
+    const extractedVideoId = getYouTubeVideoId(videoId);
 
-    if (!videoId) {
+    if (!extractedVideoId) {
       throw new Error("Invalid YouTube video link");
     }
 
-    const info = await ytdl.getInfo(videoId);
-    const formats = ytdl.filterFormats(info.formats, "video");
+    const { stdout } = await new Promise((resolve, reject) => {
+      exec(`yt-dlp --dump-json https://www.youtube.com/watch?v=${extractedVideoId}`, (error, stdout, stderr) => {
+        if (error) {
+          console.error(`exec error: ${error}`);
+          return reject(error);
+        }
+        resolve({ stdout, stderr });
+      });
+    });
 
-    const optionsDownload = {};
+    const info = JSON.parse(stdout);
 
-    formats.forEach((format) => {
-      if (format.container === "mp4") {
-        optionsDownload[format.qualityLabel] = {
-          container: format.container,
-          itag: format.itag,
-          audioExist: format.audioCodec === null ? false : true,
-          vid_id: info.videoDetails.videoId,
+    const optionsDownload = { videoDetails: {}, quality: {} };
+
+    optionsDownload.videoDetails = {
+      title: info.title,
+      duration: `${
+        Math.floor(info.duration / 3600) !== 0
+          ? `${Math.floor(info.duration / 3600)}:`
+          : ""
+      }${Math.floor((info.duration % 3600) / 60)}:${info.duration % 60}`,
+      thumbnails: info.thumbnails,
+      videoId: info.id,
+    };
+
+    info.formats.forEach((format) => {
+      if (format.ext === "mp4" && format.vcodec !== "none" && format.acodec !== "none") {
+        optionsDownload.quality[format.format_note] = {
+          container: format.ext,
+          itag: format.format_id,
+          audioExist: true,
         };
-      }
-      if (
-        format.qualityLabel === "2160p" ||
-        format.qualityLabel === "1440p" ||
-        format.qualityLabel === "2160p60"
-      ) {
-        optionsDownload[format.qualityLabel] = {
-          container: format.container,
-          itag: format.itag,
-          audioExist: format.audioCodec === null ? false : true,
-          vid_id: info.videoDetails.videoId,
+      } else if (format.ext === "mp4" && format.vcodec !== "none" && format.acodec === "none") {
+        optionsDownload.quality[format.format_note] = {
+          container: format.ext,
+          itag: format.format_id,
+          audioExist: false,
         };
       }
     });

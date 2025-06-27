@@ -1,6 +1,12 @@
-import ytdl from "ytdl-core";
+import { exec } from "child_process";
 import fs from "fs";
 import ffmpeg from "fluent-ffmpeg";
+
+const getYouTubeVideoId = (url) => {
+  const regex = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/i;
+  const match = url.match(regex);
+  return match ? match[1] : null;
+};
 
 //function to combine a video and a audio using ffmpeg
 const combineVideoAndAudio = (videoPath, audioPath, outputPath) => {
@@ -41,87 +47,76 @@ const sanitizeFilePath = (filePath) => {
 
 const videoAudioDownloadBoth = (itagVal, videoId, folder) => {
   return new Promise((resolve, reject) => {
-    // for downloading yt videos and audios and combine them
-    ytdl
-      .getInfo(videoId)
-      .then((info) => {
-        // Select the video format and quality
+    const videoPath = `Downloads/${folder}/video.mp4`;
+    const audioPath = `Downloads/${folder}/audio.m4a`;
+    const extractedVideoId = getYouTubeVideoId(videoId);
 
-        const formatVideo = ytdl.chooseFormat(info.formats, {
-          quality: itagVal,
-        }); // besically itag value are this
-        const formatAudio = ytdl.chooseFormat(info.formats, { quality: "251" });
-        // Create a write stream to save the video file
-        // console.log(formatAudio)
-        const outputFilePathVideo = `Downloads/${folder}/video.${formatVideo.container}`;
-        const outputFilePathAudio = `Downloads/${folder}/audio.${formatAudio.container}`;
+    if (!extractedVideoId) {
+      return reject(new Error("Invalid YouTube URL"));
+    }
 
-        const vInfoTitle = sanitizeFilePath(info.videoDetails.title);
+    exec(`yt-dlp -f bestvideo[ext=mp4] -o "${videoPath}" https://www.youtube.com/watch?v=${extractedVideoId}`, (error, stdout, stderr) => {
+      if (error) {
+        console.error(`exec error: ${error}`);
+        return reject(error);
+      }
+      console.log(`Video download stdout: ${stdout}`);
+      console.error(`Video download stderr: ${stderr}`);
 
-        const outputFilePath = `Downloads/${folder}/${vInfoTitle}.${formatVideo.container}`;
-        const outputStreamVideo = fs.createWriteStream(outputFilePathVideo);
-        const outputStreamAudio = fs.createWriteStream(outputFilePathAudio);
-        // Download the video file
-        ytdl
-          .downloadFromInfo(info, { format: formatVideo })
-          .pipe(outputStreamVideo);
-        // When the download is complete, show a message
-        outputStreamVideo.on("finish", () => {
-          console.log(`Finished downloading: ${outputFilePathVideo}`);
-          //Download the Audio File
-          ytdl
-            .downloadFromInfo(info, { format: formatAudio })
-            .pipe(outputStreamAudio);
+      exec(`yt-dlp -f bestaudio[ext=m4a] -o "${audioPath}" https://www.youtube.com/watch?v=${extractedVideoId}`, (error, stdout, stderr) => {
+        if (error) {
+          console.error(`exec error: ${error}`);
+          return reject(error);
+        }
+        console.log(`Audio download stdout: ${stdout}`);
+        console.error(`Audio download stderr: ${stderr}`);
+
+        exec(`yt-dlp --get-title https://www.youtube.com/watch?v=${extractedVideoId}`, (error, stdout, stderr) => {
+          if (error) {
+            console.error(`exec error: ${error}`);
+            return reject(error);
+          }
+          const vInfoTitle = sanitizeFilePath(stdout.trim());
+          const outputPath = `Downloads/${folder}/${vInfoTitle}.mp4`;
+
+          combineVideoAndAudio(videoPath, audioPath, outputPath)
+            .then(() => {
+              resolve(`${vInfoTitle}.mp4`);
+            })
+            .catch((err) => {
+              reject(err);
+            });
         });
-
-        // When the download is complete, show a message
-        outputStreamAudio.on("finish", async() => {
-          console.log(`Finished downloading: ${outputFilePathAudio}`);
-          await combineVideoAndAudio(
-            outputFilePathVideo,
-            outputFilePathAudio,
-            outputFilePath
-          );
-          resolve(`${vInfoTitle}.${formatVideo.container}`);//  a promise must be resolved not returned
-        });
-
-        
-      })
-      .catch((err) => {
-        console.error(err);
       });
+    });
   });
 };
 
 const videoDownloadOnly = (itagVal, videoId, folder) => {
   return new Promise((resolve, reject) => {
-    // for downloading yt videos only when audio exist
-    ytdl
-      .getInfo(videoId)
-      .then((info) => {
-        // Select the video format and quality
+    const extractedVideoId = getYouTubeVideoId(videoId);
 
-        const formatVideo = ytdl.chooseFormat(info.formats, {
-          quality: itagVal,
-        }); // besically itag value are this
-        const fileName = sanitizeFilePath(info.videoDetails.title);
-        // Create a write stream to save the video file
-        const outputFilePathVideo = `Downloads/${folder}/${fileName}.${formatVideo.container}`;
+    if (!extractedVideoId) {
+      return reject(new Error("Invalid YouTube URL"));
+    }
 
-        const outputStreamVideo = fs.createWriteStream(outputFilePathVideo);
-        // Download the video file
-        ytdl
-          .downloadFromInfo(info, { format: formatVideo })
-          .pipe(outputStreamVideo);
-        // When the download is complete, show a message
-        outputStreamVideo.on("finish", () => {
-          console.log(`Finished downloading: ${outputFilePathVideo}`);
-          resolve(`${fileName}.${formatVideo.container}`); //  a promise must be resolved not returned
-        });
-      })
-      .catch((err) => {
-        console.error(err);
+    exec(`yt-dlp -f ${itagVal} --output "Downloads/${folder}/%(title)s.%(ext)s" https://www.youtube.com/watch?v=${extractedVideoId}`, (error, stdout, stderr) => {
+      if (error) {
+        console.error(`exec error: ${error}`);
+        return reject(error);
+      }
+      console.log(`Video download stdout: ${stdout}`);
+      console.error(`Video download stderr: ${stderr}`);
+
+      exec(`yt-dlp --get-title https://www.youtube.com/watch?v=${extractedVideoId}`, (error, stdout, stderr) => {
+        if (error) {
+          console.error(`exec error: ${error}`);
+          return reject(error);
+        }
+        const fileName = sanitizeFilePath(stdout.trim());
+        resolve(`${fileName}.mp4`); // Assuming mp4 as default for now
       });
+    });
   });
 };
 
@@ -146,4 +141,4 @@ const decodeURLAndFolderName=(filePath)=>{
   return extractedUuid;
 }
 
-export { videoDownloadOnly, videoAudioDownloadBoth,decodeURLAndFolderName };
+export { videoDownloadOnly, videoAudioDownloadBoth, decodeURLAndFolderName, getYouTubeVideoId };

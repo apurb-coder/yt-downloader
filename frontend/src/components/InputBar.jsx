@@ -94,7 +94,7 @@ const InputBar = () => {
         }
         const response = await responsePromise();
         if(response !== undefined){
-          const qualityArray = Object.keys(response.data.quality);
+          const qualityArray = response.data.quality;
           setQualityOptions(qualityArray);
           const thumblineData = response.data.videoDetails.thumbnails;
           setThumbline(thumblineData);
@@ -111,38 +111,26 @@ const InputBar = () => {
   };
 
   return (
-    <div className="flex flex-col justify-center items-center h-[100vh] lg:h-[89vh] mx-auto">
-      <div className="flex  items-center space-x-1 text-3xl lg:text-5xl mb-10">
-        <SiYoutube className="text-red-600" />
-        {"  "}
-        <span className=" text-red-600 font-bold">YouTube</span>
-        <span className=" text-gray-700 font-bold">Downloader</span>
+    <div className="flex flex-col justify-center items-center h-[89vh] mx-auto px-4">
+      <div className="text-center mb-12">
+        <h1 className="text-4xl lg:text-6xl font-bold text-gray-800">Online Video Downloader</h1>
+        <p className="text-gray-500 mt-4 text-lg">Paste a video link below to download</p>
       </div>
-      <div className="flex justify-center items-center space-x-5">
+      <div className="flex flex-col md:flex-row justify-center items-center w-full max-w-2xl">
         <input
           type="text"
           name="ytlink"
           id="ytlink"
           placeholder="Paste your video link here"
           onChange={(e) => setYtLink(e.target.value)}
-          className="p-4  lg:w-[30rem] rounded-md border-2 border-neutral-400/50 focus:outline-none text-xs lg:text-sm text-gray-500"
+          className="p-4 w-full rounded-lg border-2 border-gray-300 focus:outline-none focus:border-red-500 transition-colors text-gray-600"
         />
         <button
-          className="relative inline-block text-sm lg:text-lg group w-[8.5rem] lg:w-[10rem]"
+          className="bg-red-600 text-white font-bold py-4 px-8 rounded-lg hover:bg-red-700 transition-colors w-full md:w-auto mt-4 md:mt-0 md:ml-4 flex items-center justify-center"
           onClick={handleSubmit}
         >
-          <span className="relative z-10 block px-5 py-3 overflow-hidden font-medium leading-tight text-red-600 transition-colors duration-300 ease-out border-2 border-red-700 rounded-lg group-hover:text-white">
-            <span className="absolute inset-0 w-full h-full px-5 py-3 rounded-lg bg-gray-50"></span>
-            <span className="absolute left-0 w-48 h-48 -ml-2 transition-all duration-300 origin-top-right -rotate-90 -translate-x-full translate-y-12 bg-red-700 group-hover:-rotate-180 ease"></span>
-            <span className="relative flex items-center justify-center">
-              Download{" "}
-              <IoIosCloudDownload className="ml-3 text-red-600 group-hover:text-white" />
-            </span>
-          </span>
-          <span
-            className="absolute bottom-0 right-0 w-full h-12 -mb-1 -mr-1 transition-all duration-200 ease-linear bg-red-600 rounded-lg group-hover:mb-0 group-hover:mr-0"
-            data-rounded="rounded-lg"
-          ></span>
+          <IoIosCloudDownload className="mr-2" />
+          Download
         </button>
       </div>
     </div>
